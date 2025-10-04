@@ -99,26 +99,6 @@ NOTES:
 - Working versions of the required libraries are included with the firmware code. This avoids potential issues related to using the wrong versions of the libraries.
 - Highly recommend using the tested pre-compiled firmware (see releases page)
 
-## Flash pre-compiled using avrdude
-
-`$ avrdude -p atmega328p -B6 -c usbasp -P usb -e -U flash:w:firmware.hex`
-
-ISP programmer required e.g [USBASP](https://www.amazon.co.uk/Hobby-Components-USBASP-Programmer-Adapter/dp/B06XYV162N)
-
-### Set AVR fuses
-
-This only needs to be done once in the factory
-
-`avrdude -c USBasp -p m328p -U lfuse:w:0xFF:m -U hfuse:w:0xDF:m -U efuse:w:0xFD:m -B6`
-
-If writing eFuse fails ISBasp may need a [firmware update](https://www.vishnumaiea.in/articles/electronics/how-to-solve-usbasp-avr-efuse-write-problem-on-progisp)
-
-***
-
-Tip Jar: I developed/maintain this firmware on a volunteer basis. Any donation, no matter how small, is greatly appreciated.
-
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/lincomatic)
-
 ```text
 Open EVSE is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
