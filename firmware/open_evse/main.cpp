@@ -53,8 +53,8 @@
 // if using I2CLCD_PCF8574 uncomment below line  and comment out LiquidTWI2.h above
 //#include "./LiquidCrystal_I2C.h"
 #ifdef TEMPERATURE_MONITORING
-  #ifdef MCP9808_IS_ON_I2C
-  #include "MCP9808.h"  //  adding the ambient temp sensor to I2C
+  #ifdef LM75B_IS_ON_I2C
+  #include "LM75B.h"  //  adding the ambient temp sensor (LM75B) to I2C
   #endif 
   #ifdef TMP007_IS_ON_I2C
   #include "./Adafruit_TMP007.h"   //  adding the TMP007 IR I2C sensor
@@ -267,7 +267,7 @@ void wdt_init(void)
 void TempMonitor::Init()
 {
   m_Flags = 0;
-  m_MCP9808_temperature = TEMPERATURE_NOT_INSTALLED;  // 230 means 23.0C  Using an integer to save on floating point library use
+  m_LM75B_temperature = TEMPERATURE_NOT_INSTALLED;  // 230 means 23.0C  Using an integer to save on floating point library use
   m_DS3231_temperature = TEMPERATURE_NOT_INSTALLED;   // the DS3231 RTC has a built in temperature sensor
   m_TMP007_temperature = TEMPERATURE_NOT_INSTALLED;
 
@@ -275,9 +275,9 @@ void TempMonitor::Init()
   LoadThresh();
 #endif
 
-#ifdef MCP9808_IS_ON_I2C
+#ifdef LM75B_IS_ON_I2C
   m_tempSensor.begin();
-#endif // MCP9808_IS_ON_I2C
+#endif // LM75B_IS_ON_I2C
 
 #ifdef TMP007_IS_ON_I2C
   m_tmp007.begin();
@@ -291,8 +291,8 @@ void TempMonitor::Read()
 #ifdef TMP007_IS_ON_I2C
     m_TMP007_temperature = m_tmp007.readObjTempC10();   //  using the TI TMP007 IR sensor
 #endif
-#ifdef MCP9808_IS_ON_I2C
-    m_MCP9808_temperature = m_tempSensor.readAmbient();  // for the MCP9808
+#ifdef LM75B_IS_ON_I2C
+  m_LM75B_temperature = m_tempSensor.readTempC10();  // for the LM75B
 #endif
 
        
@@ -874,11 +874,11 @@ void OnboardDisplay::Update(int8_t updmode)
       if ((g_TempMonitor.OverTemperature()) || TEMPERATURE_DISPLAY_ALWAYS)  {
 	g_OBD.LcdClearLine(1);
 	const char *tempfmt = "%2d.%1dC";
-#ifdef MCP9808_IS_ON_I2C
-	if ( g_TempMonitor.m_MCP9808_temperature != TEMPERATURE_NOT_INSTALLED) {   
-	  sprintf(g_sTmp,tempfmt,g_TempMonitor.m_MCP9808_temperature/10, abs(g_TempMonitor.m_MCP9808_temperature % 10));  //  Ambient sensor near or on the LCD
-	  LcdPrint(0,1,g_sTmp);
-	}
+#ifdef LM75B_IS_ON_I2C
+    if ( g_TempMonitor.m_LM75B_temperature != TEMPERATURE_NOT_INSTALLED) {   
+      sprintf(g_sTmp,tempfmt,g_TempMonitor.m_LM75B_temperature/10, abs(g_TempMonitor.m_LM75B_temperature % 10));  //  Ambient sensor near or on the LCD
+      LcdPrint(0,1,g_sTmp);
+    }
 #endif
 
 #ifdef RTC	
@@ -2478,6 +2478,7 @@ void setup()
   delay(400);  // give I2C devices time to be ready before running code that wants to initialize I2C devices.  Otherwise a hang can occur upon powerup.
   
   Serial.begin(SERIAL_BAUD);
+  Serial.println("test\n");
 
 #ifdef BTN_MENU
   g_BtnHandler.init();

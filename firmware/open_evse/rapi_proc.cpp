@@ -759,12 +759,12 @@ int EvseRapiProcessor::processCmd()
 #endif // TEMPERATURE_MONITORING_NY
     case 'P':
       sprintf(buffer,"%d %d %d",(int)g_TempMonitor.m_DS3231_temperature,
-	      (int)g_TempMonitor.m_MCP9808_temperature,
+    (int)g_TempMonitor.m_LM75B_temperature,
 	      (int)g_TempMonitor.m_TMP007_temperature);
       /* this is bigger than using sprintf
       strcpy(buffer,u2a(g_TempMonitor.m_DS3231_temperature));
       strcat(buffer,g_sSpace);
-      strcat(buffer,u2a(g_TempMonitor.m_MCP9808_temperature));
+  strcat(buffer,u2a(g_TempMonitor.m_LM75B_temperature));
       strcat(buffer,g_sSpace);
       strcat(buffer,u2a(g_TempMonitor.m_TMP007_temperature));
       */

@@ -37,6 +37,8 @@
 
 // MCP9808
 #define MCP9808_ADDRESS 0x18
+// LM75B (common I2C addr; can be changed if A0/A1 pins differ)
+#define LM75B_ADDRESS 0x48
 
 
 //RAPI_I2C

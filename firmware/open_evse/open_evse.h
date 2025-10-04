@@ -60,6 +60,7 @@ typedef unsigned long time_t;
 //#include "Language_norwegian.h"
 
 //-- begin features
+// #define NO_AUTOSVCLEVEL
 
 #ifndef PLATFORMIO
 //#define OCPP
@@ -86,7 +87,6 @@ typedef unsigned long time_t;
 #define SHOW_DISABLED_TESTS
 
 // current measurement
-#define AMMETER
 
 // Enable three-phase energy calculation
 // Note: three-phase energy will always be calculated even if EV is only using singe-phase. Ony enable if always charging 3-phase EV and aware of this limitation.
@@ -107,11 +107,11 @@ typedef unsigned long time_t;
 // RAPI over serial
 #define RAPI_SERIAL
 
-// RAPI $WF support
-#define RAPI_WF
+// // RAPI $WF support
+// #define RAPI_WF
 
-// RAPI $AN support
-#define RAPI_BTN
+// // RAPI $AN support
+// #define RAPI_BTN
 
 // RAPI over I2C
 //#define RAPI_I2C
@@ -130,7 +130,7 @@ typedef unsigned long time_t;
 
 
 // stop charging after a certain kWh reached - requires KWH_RECORDING
-#define CHARGE_LIMIT
+//#define CHARGE_LIMIT
 
 // support Mennekes (IEC 62196) type 2 locking pin
 #define MENNEKES_LOCK
@@ -174,7 +174,7 @@ extern AutoCurrentCapacityController g_ACCController;
 
 // If you loop a wire from the third GFI pin through the CT a few times and then to ground,
 // enable this. ADVPWR must also be defined.
-#define GFI_SELFTEST
+ #define GFI_SELFTEST
 
 // behavior specified by UL
 // 1) if enabled, POST failure will cause a hard fault until power cycled.
@@ -193,9 +193,9 @@ extern AutoCurrentCapacityController g_ACCController;
 
 #define TEMPERATURE_MONITORING  // Temperature monitoring support
 
-#define HEARTBEAT_SUPERVISION // Heartbeat Supervision support
+// #define HEARTBEAT_SUPERVISION // Heartbeat Supervision support
 
-#ifdef AMMETER
+
 
 // if OVERCURRENT_THRESHOLD is defined, then EVSE will hard fault in
 // the event that the EV is pulling more current than it's allowed to
@@ -213,7 +213,7 @@ extern AutoCurrentCapacityController g_ACCController;
 #define MV_FOR_L2 240000L       // conventional for North America
 //  #define MV_FOR_L2 230000L   // conventional for most of the world
 #endif
-
+#ifdef AMMETER
 // kWh Recording feature depends upon #AMMETER support
 // comment out KWH_RECORDING to have the elapsed time and time of day displayed on the second line of the LCD
 #define KWH_RECORDING
@@ -244,14 +244,14 @@ extern AutoCurrentCapacityController g_ACCController;
 // Support PCF8574* based I2C backpack using F. Malpartida's library
 // https://bitbucket.org/fmalpartida/new-liquidcrystal/downloads
 // *requires* I2CLCD enabled and RGBLCD disabled
-//#define I2CLCD_PCF8574
+#define I2CLCD_PCF8574
 #ifdef I2CLCD_PCF8574
 #define I2CLCD
 #undef RGBLCD
 #endif // I2CLCD_PCF8574
 
 // Advanced Powersupply... Ground check, stuck relay, L1/L2 detection.
-#define ADVPWR
+//#define ADVPWR
 
 // single button menus (needs LCD enabled)
 // connect an SPST-NO button between pin defined by BTN_REG/BTN_IDX and GND or enable ADAFRUIT_BTN to use the
@@ -375,7 +375,7 @@ extern AutoCurrentCapacityController g_ACCController;
 #endif
 
 // for testing print various diagnostic messages to the UART
-//#define SERDBG
+#define SERDBG
 
 //
 // begin functional tests
@@ -731,7 +731,7 @@ extern AutoCurrentCapacityController g_ACCController;
 
 #ifdef TEMPERATURE_MONITORING
 
-#define MCP9808_IS_ON_I2C    // Use the MCP9808 connected to I2C
+#define LM75B_IS_ON_I2C    // Use the LM75B connected to I2C (replaces MCP9808)
 //#define TMP007_IS_ON_I2C     // Use the TMP007 IR sensor on I2C
 #define TEMPERATURE_DISPLAY_ALWAYS 0     // Set this flag to 1 to always show temperatures on the bottom line of the 16X2 LCD
                                          // Set to it 0 to only display when temperatures become elevated
@@ -973,7 +973,7 @@ public:
 #endif // GFI
 
 #ifdef TEMPERATURE_MONITORING
-#include "./MCP9808.h"  //  adding the ambient temp sensor to I2C
+#include "./LM75B.h"  //  adding the ambient temp sensor (LM75B) to I2C
 #include "./Adafruit_TMP007.h"   //  adding the TMP007 IR I2C sensor
 
 
@@ -988,14 +988,14 @@ class TempMonitor {
   uint8_t m_Flags;
   unsigned long m_LastUpdate;
 public:
-#ifdef MCP9808_IS_ON_I2C
-  MCP9808 m_tempSensor;
-#endif  //MCP9808_IS_ON_I2C
+#ifdef LM75B_IS_ON_I2C
+  LM75B m_tempSensor;
+#endif  //LM75B_IS_ON_I2C
 #ifdef TMP007_IS_ON_I2C
   Adafruit_TMP007 m_tmp007;
 #endif  //TMP007_IS_ON_I2C
   // these three temperatures need to be signed integers
-  int16_t m_MCP9808_temperature;  // 230 means 23.0C  Using an integer to save on floating point library use
+  int16_t m_LM75B_temperature;  // 230 means 23.0C  Using an integer to save on floating point library use
   int16_t m_DS3231_temperature;   // the DS3231 RTC has a built in temperature sensor
   int16_t m_TMP007_temperature;
 

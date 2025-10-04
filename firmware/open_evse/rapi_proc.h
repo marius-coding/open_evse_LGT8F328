@@ -308,9 +308,9 @@ GO get Overtemperature thresholds
  thresholds are in 10ths of a degree Celcius
  $GO^2C
 GP - get temPerature (v1.0.3+)
- response: $OK ds3231temp mcp9808temp tmp007temp
+response: $OK ds3231temp lm75btemp tmp007temp
  ds3231temp - temperature from DS3231 RTC
- mcp9808temp - temperature from MCP9808
+ lm75btemp - temperature from LM75B
  tmp007temp - temperature from TMP007
  all temperatures are in 10th's of a degree Celcius
  if any temperature sensor is not installed, its return value is -2560
@@ -363,7 +363,7 @@ Z0 closems holdpwm
 
 #ifdef RAPI
 
-#define RAPIVER "5.2.1"
+#define RAPIVER "5.2.1-LGT"
 
 #define WIFI_MODE_AP 0
 #define WIFI_MODE_CLIENT 1

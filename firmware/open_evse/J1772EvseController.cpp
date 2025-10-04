@@ -720,7 +720,7 @@ uint8_t J1772EVSEController::doPost()
 #else //!OPENEVSE_2
     
     delay(150); // delay reading for stable pilot before reading
-    int reading = adcPilot.read(); //read pilot
+    int reading = adcPilot.read()/4; //read pilot
 #ifdef SERDBG
     if (SerDbgEnabled()) {
       Serial.print("Pilot: ");Serial.println((int)reading);
@@ -1197,8 +1197,9 @@ void J1772EVSEController::ReadPilot(uint16_t *plow,uint16_t *phigh)
 
   // 1x = 114us 20x = 2.3ms 100x = 11.3ms
   for (int i=0;i < PILOT_LOOP_CNT;i++) {
-    uint16_t reading = adcPilot.read();  // measures pilot voltage
-    
+    uint16_t reading = adcPilot.read()/4;  // measures pilot voltage
+    //Serial.print("Pilot: ");Serial.println((int)reading);
+
     if (reading > ph) {
       ph = reading;
     }
@@ -1476,7 +1477,7 @@ void J1772EVSEController::Update(uint8_t forcetransition)
 #ifdef TEMPERATURE_MONITORING                 //  A state for OverTemp fault
 if (TempChkEnabled()) {
   if ((g_TempMonitor.m_TMP007_temperature >= TEMPERATURE_INFRARED_PANIC)  ||
-      (g_TempMonitor.m_MCP9808_temperature >= TEMPERATURE_AMBIENT_PANIC)  ||
+  (g_TempMonitor.m_LM75B_temperature >= TEMPERATURE_AMBIENT_PANIC)  ||
       (g_TempMonitor.m_DS3231_temperature >= TEMPERATURE_AMBIENT_PANIC))  {
     tmpevsestate = EVSE_STATE_OVER_TEMPERATURE;
     m_EvseState = EVSE_STATE_OVER_TEMPERATURE;
@@ -1876,12 +1877,12 @@ if (TempChkEnabled()) {
       uint8_t setit = 0;
 
       if (g_TempMonitor.OverTemperature() && ((g_TempMonitor.m_TMP007_temperature   <= TEMPERATURE_INFRARED_RESTORE_AMPERAGE ) &&  // all sensors need to show return to lower levels
-					      (g_TempMonitor.m_MCP9808_temperature  <= TEMPERATURE_AMBIENT_RESTORE_AMPERAGE  ) &&
+            (g_TempMonitor.m_LM75B_temperature  <= TEMPERATURE_AMBIENT_RESTORE_AMPERAGE  ) &&
 					      (g_TempMonitor.m_DS3231_temperature  <= TEMPERATURE_AMBIENT_RESTORE_AMPERAGE  ))) {  // restore the original L2 current advice to the EV
 	setit = 1;    // set to the user's original setting for current
       }           
       else if (g_TempMonitor.OverTemperatureShutdown() && ((g_TempMonitor.m_TMP007_temperature   <= TEMPERATURE_INFRARED_THROTTLE_DOWN ) &&  // all sensors need to show return to lower levels
-						      (g_TempMonitor.m_MCP9808_temperature  <= TEMPERATURE_AMBIENT_THROTTLE_DOWN )  &&
+              (g_TempMonitor.m_LM75B_temperature  <= TEMPERATURE_AMBIENT_THROTTLE_DOWN )  &&
 						      (g_TempMonitor.m_DS3231_temperature  <= TEMPERATURE_AMBIENT_THROTTLE_DOWN ))) {   //  restore the throttled down current advice to the EV since things have cooled down again
 	currcap /= 2;    // set to the throttled back level
 	setit = 3;
@@ -1913,13 +1914,13 @@ if (TempChkEnabled()) {
       uint8_t setit = 0;
 
       if (!g_TempMonitor.OverTemperature() && ((g_TempMonitor.m_TMP007_temperature   >= TEMPERATURE_INFRARED_THROTTLE_DOWN ) ||  // any sensor reaching threshold trips action
-					       (g_TempMonitor.m_MCP9808_temperature  >= TEMPERATURE_AMBIENT_THROTTLE_DOWN ) ||
+            (g_TempMonitor.m_LM75B_temperature  >= TEMPERATURE_AMBIENT_THROTTLE_DOWN ) ||
 					       (g_TempMonitor.m_DS3231_temperature  >= TEMPERATURE_AMBIENT_THROTTLE_DOWN ))) {   // Throttle back the L2 current advice to the EV
 	currcap /= 2;   // set to the throttled back level
 	setit = 2;
       }
       else if (!g_TempMonitor.OverTemperatureShutdown() && ((g_TempMonitor.m_TMP007_temperature   >= TEMPERATURE_INFRARED_SHUTDOWN ) ||  // any sensor reaching threshold trips action
-						       (g_TempMonitor.m_MCP9808_temperature  >= TEMPERATURE_AMBIENT_SHUTDOWN  )  ||
+              (g_TempMonitor.m_LM75B_temperature  >= TEMPERATURE_AMBIENT_SHUTDOWN  )  ||
 						       (g_TempMonitor.m_DS3231_temperature  >= TEMPERATURE_AMBIENT_SHUTDOWN  ))) {   // Throttle back the L2 current advice to the EV
   currcap /= 4;
 	setit = 4;
