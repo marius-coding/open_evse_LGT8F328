@@ -1,1 +1,1 @@
-avrdude -p lgt8f328p -c avrisp -P /dev/ttyACM0 -b 115200 -U flash:w:test.hex:i
+avrdude -p lgt8f328p -c avrisp -P COMPORT -b 115200 -U flash:w:test.hex:i
