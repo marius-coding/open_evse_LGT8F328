@@ -60,7 +60,7 @@ typedef unsigned long time_t;
 //#include "Language_norwegian.h"
 
 //-- begin features
-// #define NO_AUTOSVCLEVEL
+#define NO_AUTOSVCLEVEL
 
 #ifndef PLATFORMIO
 //#define OCPP
