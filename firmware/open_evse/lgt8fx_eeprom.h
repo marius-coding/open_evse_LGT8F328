@@ -9,6 +9,9 @@
 
 #pragma once
 
+// Only apply LGT8F-specific EEPROM handling when compiling for LGT8F chips
+#if defined(__LGT8FX__) || defined(__LGT8F__)
+
 // Prevent avr/eeprom.h from being included since we're using Arduino EEPROM library
 #define _AVR_EEPROM_H_ 1
 
@@ -60,3 +63,10 @@ inline void lgt8f_eeprom_write_dword(uint32_t *addr, uint32_t value) {
 #define eeprom_write_word(addr, val)  lgt8f_eeprom_write_word(addr, val)
 #define eeprom_read_dword(addr)       lgt8f_eeprom_read_dword(addr)
 #define eeprom_write_dword(addr, val) lgt8f_eeprom_write_dword(addr, val)
+
+#else  // !__LGT8FX__ && !__LGT8F__
+
+// For standard ATmega328P and other AVR chips, use the standard AVR EEPROM library
+#include <avr/eeprom.h>
+
+#endif  // __LGT8FX__ || __LGT8F__

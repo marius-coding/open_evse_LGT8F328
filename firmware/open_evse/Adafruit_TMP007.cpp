@@ -80,7 +80,11 @@ int16_t Adafruit_TMP007::readRawDieTemperature(void) {
   Serial.print("Raw Tambient: 0x"); Serial.print (raw, HEX);
   
 
-  float v = raw/4;
+#if defined(__LGT8FX__) || defined(__LGT8F__)
+  float v = raw/4;  // LGT8F has 12-bit ADC
+#else
+  float v = raw;
+#endif
   v *= 0.03125;
   Serial.print(" ("); Serial.print(v); Serial.println(" *C)");
 #endif

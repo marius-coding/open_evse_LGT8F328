@@ -33,8 +33,7 @@
 
 #include <avr/wdt.h>
 #include <avr/pgmspace.h>
-#include "lgt8fx_eeprom.h"  // LGT8F328P EEPROM compatibility - MUST be before avr/eeprom.h
-// Note: avr/eeprom.h is NOT included because lgt8fx_eeprom.h provides its own implementation
+#include "lgt8fx_eeprom.h"  // Handles EEPROM for both LGT8F328P and ATmega328P
 #include <pins_arduino.h>
 #include "./Wire.h"
 #include "avrstuff.h"

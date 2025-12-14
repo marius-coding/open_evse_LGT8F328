@@ -720,7 +720,11 @@ uint8_t J1772EVSEController::doPost()
 #else //!OPENEVSE_2
     
     delay(150); // delay reading for stable pilot before reading
-    int reading = adcPilot.read()/4; //read pilot
+#if defined(__LGT8FX__) || defined(__LGT8F__)
+    int reading = adcPilot.read()/4; //read pilot (LGT8F has 12-bit ADC, divide by 4 to match 10-bit range)
+#else
+    int reading = adcPilot.read(); //read pilot
+#endif
 #ifdef SERDBG
     if (SerDbgEnabled()) {
       Serial.print("Pilot: ");Serial.println((int)reading);
@@ -1197,7 +1201,11 @@ void J1772EVSEController::ReadPilot(uint16_t *plow,uint16_t *phigh)
 
   // 1x = 114us 20x = 2.3ms 100x = 11.3ms
   for (int i=0;i < PILOT_LOOP_CNT;i++) {
-    uint16_t reading = adcPilot.read()/4;  // measures pilot voltage
+#if defined(__LGT8FX__) || defined(__LGT8F__)
+    uint16_t reading = adcPilot.read()/4;  // measures pilot voltage (LGT8F has 12-bit ADC)
+#else
+    uint16_t reading = adcPilot.read();  // measures pilot voltage
+#endif
     //Serial.print("Pilot: ");Serial.println((int)reading);
 
     if (reading > ph) {
