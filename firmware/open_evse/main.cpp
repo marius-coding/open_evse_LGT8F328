@@ -42,7 +42,7 @@
  * Boston, MA 02111-1307, USA.
  */
 #include <avr/io.h>
-#include <avr/eeprom.h>
+// Note: avr/eeprom.h is included via open_evse.h -> lgt8fx_eeprom.h
 #include <avr/wdt.h>
 #include <avr/pgmspace.h>
 #include <pins_arduino.h>
