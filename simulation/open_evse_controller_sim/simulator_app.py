@@ -172,7 +172,7 @@ def main(argv: list[str] | None = None) -> int:
         try:
             from .gui import build_gui
         except ImportError:
-            print("DearPyGui is required for GUI mode. Install with: pip install dearpygui", flush=True)
+            print("PySide6 is required for GUI mode. Install with: pip install PySide6", flush=True)
             return 1
         build_gui(
             port=args.port,
