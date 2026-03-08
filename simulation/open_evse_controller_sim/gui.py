@@ -44,6 +44,34 @@ _COLOUR_MAP: dict[int, tuple[int, int, int, int]] = {
 }
 _DEFAULT_COLOUR: tuple[int, int, int, int] = (128, 128, 128, 255)
 
+# Human-readable descriptions for RAPI command/response tokens.
+_RAPI_CMD_DESC: dict[str, str] = {
+    "GV": "Get firmware / RAPI version",
+    "GS": "Get EVSE state",
+    "GE": "Get settings (capacity & flags)",
+    "GC": "Get current capacity range",
+    "G0": "Get EV connect state",
+    "SC": "Set current capacity",
+    "FE": "Enable EVSE",
+    "FD": "Disable EVSE",
+    "SL": "Set service level",
+    "AB": "Boot notification (async)",
+    "AT": "State-change notification (async)",
+    "OK": "Response: success",
+    "NK": "Response: error / unknown command",
+}
+
+
+def _describe_rapi(text: str) -> str:
+    """Return a human-readable description for a raw RAPI frame string."""
+    stripped = text.strip()
+    if not stripped.startswith("$"):
+        return ""
+    word = stripped[1:].split()[0] if stripped[1:].split() else ""
+    token = word.split("^")[0].split("*")[0]
+    return _RAPI_CMD_DESC.get(token, f"Command: {token}")
+
+
 _VEHICLE_CHOICES = {
     "Disconnected": VehicleResponse.DISCONNECTED,
     "Connected idle": VehicleResponse.CONNECTED_IDLE,
@@ -86,16 +114,20 @@ def build_gui(
     dispatcher = RapiDispatcher(engine.model)
     app: SimulatorApp | None = None
     transport: UartTransport | None = None
-    rapi_log: list[str] = []
+    rapi_rows: list[int] = []
     max_log_lines = 400
 
     def _append_log(direction: str, text: str) -> None:
         timestamp = time.strftime("%H:%M:%S")
         line = f"[{timestamp}] {direction.upper():>3} {text.rstrip()}"
-        rapi_log.append(line)
-        if len(rapi_log) > max_log_lines:
-            del rapi_log[: len(rapi_log) - max_log_lines]
-        dpg.set_value("rapi_log", "\n".join(rapi_log))
+        description = _describe_rapi(text)
+        with dpg.table_row(parent="rapi_table") as row_id:
+            dpg.add_text(line)
+            dpg.add_text(description)
+        rapi_rows.append(row_id)
+        if len(rapi_rows) > max_log_lines:
+            dpg.delete_item(rapi_rows.pop(0))
+        dpg.set_y_scroll("rapi_table", dpg.get_y_scroll_max("rapi_table"))
 
     def _traffic_hook(direction: str, frame: str) -> None:
         _append_log(direction, frame)
@@ -303,14 +335,19 @@ def build_gui(
 
                 dpg.add_separator()
                 dpg.add_text("RAPI Traffic")
-                dpg.add_input_text(
-                    tag="rapi_log",
-                    multiline=True,
-                    readonly=True,
-                    width=500,
-                    height=580,
-                    default_value="",
-                )
+                with dpg.table(
+                    tag="rapi_table",
+                    header_row=True,
+                    scrollY=True,
+                    height=565,
+                    borders_innerH=True,
+                    borders_outerH=True,
+                    borders_innerV=True,
+                    borders_outerV=True,
+                    policy=dpg.mvTable_SizingStretchProp,
+                ):
+                    dpg.add_table_column(label="Frame", init_width_or_weight=0.65)
+                    dpg.add_table_column(label="Description", init_width_or_weight=0.35)
 
     dpg.set_primary_window("main_window", True)
     dpg.show_viewport()
